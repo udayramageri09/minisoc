@@ -1,0 +1,87 @@
+# MiniSoC platform specification — the single source of truth.
+# tools/regmap_gen.py validates this file and generates:
+#   build/generated/regmap.h   (C/C++ macros used by models AND firmware)
+#   build/generated/regmap.tcl (Tcl variables used by test scripts)
+#   build/generated/regmap.md  (human-readable register documentation)
+
+platform: minisoc
+bus_latency_ns: 2
+
+memories:
+  - name: SRAM
+    base: 0x00000000
+    size: 0x00010000        # 64 KiB
+    latency_ns: 10
+
+peripheral_types:
+  uart:
+    desc: Transmit-only UART with an 8-entry TX FIFO (1 char drained per microsecond)
+    registers:
+      - name: TXDATA
+        offset: 0x00
+        access: WO
+        desc: Push one byte into the TX FIFO (dropped and OVERRUN set if FIFO full)
+        fields:
+          - {name: DATA, lsb: 0, width: 8}
+      - name: STATUS
+        offset: 0x04
+        access: RO
+        desc: FIFO state; OVERRUN is sticky and cleared by writing 1 (W1C)
+        fields:
+          - {name: TX_EMPTY, lsb: 0, width: 1}
+          - {name: TX_FULL,  lsb: 1, width: 1}
+          - {name: OVERRUN,  lsb: 2, width: 1}
+      - name: CTRL
+        offset: 0x08
+        access: RW
+        desc: Enable and interrupt control
+        fields:
+          - {name: EN,   lsb: 0, width: 1}
+          - {name: TXIE, lsb: 1, width: 1}
+
+  timer:
+    desc: 32-bit down-counter, 10 ns tick (100 MHz), one-shot or periodic
+    registers:
+      - name: CTRL
+        offset: 0x00
+        access: RW
+        desc: Rising edge of EN (re)starts the countdown from LOAD
+        fields:
+          - {name: EN,       lsb: 0, width: 1}
+          - {name: PERIODIC, lsb: 1, width: 1}
+          - {name: IE,       lsb: 2, width: 1}
+      - name: LOAD
+        offset: 0x04
+        access: RW
+        desc: Reload value in ticks; writing while enabled restarts the countdown
+      - name: VALUE
+        offset: 0x08
+        access: RO
+        desc: Ticks remaining in the current period
+      - name: STATUS
+        offset: 0x0C
+        access: W1C
+        desc: EXPIRED is set on reaching zero; write 1 to clear
+        fields:
+          - {name: EXPIRED, lsb: 0, width: 1}
+
+  intc:
+    desc: Level-sensitive interrupt controller (OR of enabled lines drives the CPU IRQ)
+    registers:
+      - name: PENDING
+        offset: 0x00
+        access: RO
+        desc: Raw state of every interrupt line
+      - name: ENABLE
+        offset: 0x04
+        access: RW
+        desc: One enable bit per interrupt line
+      - name: ACTIVE
+        offset: 0x08
+        access: RO
+        desc: PENDING & ENABLE
+
+instances:
+  - {name: UART0,  type: uart,  base: 0x10000000, size: 0x1000, irq: 1}
+  - {name: TIMER0, type: timer, base: 0x10001000, size: 0x1000, irq: 0}
+  - {name: INTC0,  type: intc,  base: 0x10002000, size: 0x1000}
