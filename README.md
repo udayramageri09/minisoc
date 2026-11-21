@@ -1,5 +1,7 @@
 # MiniSoC: a scriptable SystemC/TLM-2.0 virtual prototype with CI regression
 
+[![ci](https://github.com/udayramageri09/minisoc/actions/workflows/ci.yml/badge.svg)](https://github.com/udayramageri09/minisoc/actions/workflows/ci.yml)
+
 **Problem.** Firmware teams usually wait for silicon or an FPGA board before they
 can write and test drivers, and debug can take up to 40% of project time.
 Virtual prototypes fix this by modelling the hardware in SystemC TLM-2.0, so
