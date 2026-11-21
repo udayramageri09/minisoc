@@ -4,6 +4,9 @@ on: [push, pull_request]
 jobs:
   regression:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        build: [normal, asan]
     steps:
       - uses: actions/checkout@v4
       - name: Install SystemC, Tcl and Python deps
@@ -12,12 +15,13 @@ jobs:
           sudo apt-get install -y libsystemc-dev tcl-dev cmake g++
           python3 -m pip install --user pyyaml pytest
       - name: Unit tests + build + regression
-        run: scripts/check.sh
+        run: |
+          if [ "${{ matrix.build }}" = "asan" ]; then scripts/check.sh --asan; else scripts/check.sh; fi
       - name: Publish summary
         if: always()
         run: cat out/summary.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: regression
+          name: regression-${{ matrix.build }}
           path: out/
