@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <set>
 #include <stdexcept>
@@ -40,7 +41,10 @@ public:
     }
 
     void enable_trace(const std::string& path) {
+        const auto dir = std::filesystem::path(path).parent_path();
+        if (!dir.empty()) std::filesystem::create_directories(dir);
         trace_.open(path);
+        if (!trace_) throw std::runtime_error("cannot open trace file " + path);
         trace_ << "time_ns,cmd,addr,data,len,target,status\n";
     }
     void inject_error(uint64_t addr) { faults_.insert(addr); }
