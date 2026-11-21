@@ -22,6 +22,13 @@ using namespace sc_core;
 #define MINISOC_REGMAP_TCL "generated/regmap.tcl"
 #endif
 
+// SystemC threads are coroutines (QuickThreads) that switch stacks by hand.
+// ASan's fake-stack mode for stack-use-after-return cannot follow those switches
+// and reports false SEGVs, so disable just that check in sanitizer builds.
+#if defined(__SANITIZE_ADDRESS__)
+extern "C" const char* __asan_default_options() { return "detect_stack_use_after_return=0"; }
+#endif
+
 static int usage() {
     std::cerr << "usage: minisoc (--script FILE.tcl | --fw NAME) [--trace FILE.csv] [--timeout-us N]\n";
     return 4;
