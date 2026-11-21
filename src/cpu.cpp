@@ -13,6 +13,10 @@ Cpu::Cpu(sc_module_name nm, std::string script, std::string firmware, std::strin
     : sc_module(nm), isock("isock"), irq("irq"), script_(std::move(script)), firmware_(std::move(firmware)),
       regmap_tcl_(std::move(regmap_tcl)) {
     SC_THREAD(run);
+    // SystemC threads run on small coroutine stacks (64 KiB default). The Tcl
+    // interpreter and sanitizer builds need far more; overflowing it corrupts
+    // memory silently in normal builds and crashes under ASan.
+    set_stack_size(1 << 20);
 }
 
 void Cpu::transport(tlm::tlm_command cmd, uint64_t addr, uint32_t& data) {

@@ -8,6 +8,12 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 add_compile_options(-Wall -Wextra -Wno-unused-parameter)
 
+option(MINISOC_SANITIZE "Build with AddressSanitizer + UBSan" OFF)
+if(MINISOC_SANITIZE)
+  add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+  add_link_options(-fsanitize=address,undefined)
+endif()
+
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 find_package(TCL)  # only TCL_LIBRARY + TCL_INCLUDE_PATH are used (Tk not needed)
 if(NOT TCL_LIBRARY OR NOT TCL_INCLUDE_PATH)
