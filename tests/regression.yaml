@@ -1,0 +1,11 @@
+# Regression manifest consumed by tools/regress.py
+# kind: tcl (script path) or fw (firmware image name)
+# expect_uart: optional golden substring that must appear in the UART output
+tests:
+  - {name: memory,       kind: tcl, target: tests/test_memory.tcl,     tags: [smoke, mem]}
+  - {name: bus_errors,   kind: tcl, target: tests/test_bus_errors.tcl, tags: [smoke, bus]}
+  - {name: uart,         kind: tcl, target: tests/test_uart.tcl,       tags: [uart]}
+  - {name: timer,        kind: tcl, target: tests/test_timer.tcl,      tags: [timer, irq]}
+  - {name: fw_hello,     kind: fw,  target: hello,     tags: [smoke, fw], expect_uart: "Hello from MiniSoC firmware"}
+  - {name: fw_timer_irq, kind: fw,  target: timer_irq, tags: [fw, irq],   expect_uart: "tick 5"}
+  - {name: fw_mem_test,  kind: fw,  target: mem_test,  tags: [fw, mem]}
