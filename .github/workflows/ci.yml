@@ -12,8 +12,7 @@ jobs:
       - name: Install SystemC, Tcl and Python deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsystemc-dev tcl-dev cmake g++
-          python3 -m pip install --user pyyaml pytest
+          sudo apt-get install -y libsystemc-dev tcl-dev cmake g++ python3-yaml python3-pytest
       - name: Unit tests + build + regression
         run: |
           if [ "${{ matrix.build }}" = "asan" ]; then scripts/check.sh --asan; else scripts/check.sh; fi
