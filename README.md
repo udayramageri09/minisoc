@@ -120,3 +120,13 @@ scripts/         build.sh, check.sh, debug.sh
 .github/         CI workflow (normal + ASan matrix)
 .claude/skills/  agent workflows; CLAUDE.md holds the project rules
 ```
+
+## One-command demo
+
+```bash
+git clone https://github.com/udayramageri09/minisoc.git && cd minisoc
+scripts/demo.sh              # builds on the first run, then walks through 5 steps
+```
+
+Needs (Ubuntu): `sudo apt-get install -y libsystemc-dev tcl-dev cmake g++ python3-yaml`.
+Press Enter between steps, or run `scripts/demo.sh --no-pause`.
